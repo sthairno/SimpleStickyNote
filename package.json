@@ -4,6 +4,7 @@
   "description": "Open Hack U 2020 Online Vol.5 FreeAssets出展作品",
   "main": "index.js",
   "scripts": {
+    "build": "echo",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
