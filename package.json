@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/sthairno/SimpleStickyNote/issues"
   },
-  "homepage": "https://github.com/sthairno/SimpleStickyNote#readme"
+  "homepage": "https://github.com/sthairno/SimpleStickyNote#readme",
+  "dependencies": {
+    "bootstrap": "^5.0.0-beta2"
+  }
 }
