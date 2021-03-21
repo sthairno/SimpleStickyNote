@@ -17,3 +17,8 @@ body {
 .editor-area>* {
     position: absolute;
 }
+
+.selection-rect {
+    background-color: rgba(77, 194, 240, 0.363);
+    border-color: rgb(0, 183, 255);
+}

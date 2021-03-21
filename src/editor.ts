@@ -4,161 +4,161 @@ let canvasWidth = 100;
 let canvasHeight = 100;
 
 //描画中のキャンバス
-let drawingCanvas: HTMLCanvasElement;
-let drawingCanvas2d: CanvasRenderingContext2D;
+class DrawingCanvas {
+    public element: HTMLCanvasElement;
+    public ctx2d: CanvasRenderingContext2D;
+
+    constructor(element: HTMLCanvasElement) {
+        this.element = element;
+        this.ctx2d = element.getContext('2d')!;
+    }
+
+    clear() {
+        this.ctx2d.clearRect(0, 0, canvasWidth, canvasHeight);
+    }
+}
+let drawingCanvas: DrawingCanvas;
 $(function () {
-    drawingCanvas = <HTMLCanvasElement>document.getElementById('drawing-canvas');
-    drawingCanvas2d = drawingCanvas.getContext('2d')!;
+    drawingCanvas = new DrawingCanvas(<HTMLCanvasElement>document.getElementById('drawing-canvas'));
 });
 
 //ペン描画のキャンバス
-let penCanvas: HTMLCanvasElement;
-let penCanvas2d: CanvasRenderingContext2D;
-$(function () {
-    penCanvas = <HTMLCanvasElement>document.getElementById('pen-canvas');
-    penCanvas2d = penCanvas.getContext('2d')!;
-});
+class PenCanvas {
+    public static readonly penSize: number = 5;
+    static readonly style: string = "rgba(10, 10, 10, 1)";
+    static readonly minMove: number = 5; //パスを追加するときの最低移動量
 
-let penDownFlg = false;
-let penPath: [x: number, y: number][];
-const penSize: number = 5;
-const penStyle: string = "rgba(10, 10, 10, 1)";
-const penMoveParam: number = 5; //パスを追加するときの最低移動量
+    public element: HTMLCanvasElement;
+    public ctx2d: CanvasRenderingContext2D;
 
-//キー入力テキストボックス
-let editorTextarea: HTMLTextAreaElement;
-$(function () {
-    editorTextarea = <HTMLTextAreaElement>document.getElementById('editor-textarea');
-});
-let editorTextareaX: number = 0;
-let editorTextareaY: number = 0;
+    private isDown: boolean = false;
+    private penPath: [x: number, y: number][] = [];
 
-//キャンバス関係
+    constructor(element: HTMLCanvasElement) {
+        this.element = element;
+        this.ctx2d = element.getContext('2d')!;
+    }
 
-function updateCanvasSize() {
-    let editorArea = $(".editor-area");
-    canvasWidth = Math.max(canvasWidth, editorArea.width()!);
-    canvasHeight = Math.max(canvasHeight, editorArea.height()!);
+    render() {
+        this.ctx2d.beginPath();
+        this.ctx2d.moveTo(this.penPath[0][0], this.penPath[0][1]);
+        this.penPath.forEach((pos, idx) => {
+            if (idx == 0) {
+                return;
+            }
+            this.ctx2d.lineTo(pos[0], pos[1]);
+        });
+        this.ctx2d.stroke();
+    }
 
-    drawingCanvas.width = canvasWidth;
-    drawingCanvas.height = canvasHeight;
-    penCanvas.width = canvasWidth;
-    penCanvas.height = canvasHeight;
+    finish() {
+        drawingCanvas.ctx2d.drawImage(this.element, 0, 0);
+    }
 
-    penCanvas2d.lineWidth = penSize;
-    penCanvas2d.strokeStyle = penStyle;
-    penCanvas2d.lineCap = 'round';
-}
+    down(x: number, y: number) {
+        this.isDown = true;
+        this.penPath = [[x, y]];
+        this.clear();
+    }
 
-function clearDrawingCanvas() {
-    drawingCanvas2d.clearRect(0, 0, canvasWidth, canvasHeight);
-}
-
-function clearPenCanvas() {
-    penCanvas2d.clearRect(0, 0, canvasWidth, canvasHeight);
-}
-
-//ペン描画
-
-function penRender() {
-    penCanvas2d.beginPath();
-    penCanvas2d.moveTo(penPath[0][0], penPath[0][1]);
-    penPath.forEach((pos, idx) => {
-        if (idx == 0) {
+    move(x: number, y: number) {
+        if (!this.isDown) {
             return;
         }
-        penCanvas2d.lineTo(pos[0], pos[1]);
-    });
-    penCanvas2d.stroke();
-}
-
-function penFinish() {
-    drawingCanvas2d.drawImage(penCanvas, 0, 0);
-}
-
-function penDown(x: number, y: number) {
-    penDownFlg = true;
-    penPath = [[x, y]];
-    clearPenCanvas();
-}
-
-function penMove(x: number, y: number) {
-    if (!penDownFlg) {
-        return;
+        let prevPos = this.penPath[this.penPath.length - 1];
+        if (Math.pow(x - prevPos[0], 2) + Math.pow(y - prevPos[1], 2) < Math.pow(PenCanvas.minMove, 2)) {
+            return;
+        }
+        this.penPath.push([x, y]);
+        this.clear();
+        this.render();
     }
-    let prevPos = penPath[penPath.length - 1];
-    if (Math.pow(x - prevPos[0], 2) + Math.pow(y - prevPos[1], 2) < Math.pow(penMoveParam, 2)) {
-        return;
+
+    up(x: number, y: number) {
+        if (!this.isDown) {
+            return;
+        }
+        if (this.penPath.length == 1) {
+            this.penPath = [];
+            this.isDown = false;
+            return;
+        }
+        this.penPath.push([x, y]);
+        this.clear();
+        this.render();
+
+        this.finish();
+
+        this.cancel();
     }
-    penPath.push([x, y]);
-    clearPenCanvas();
-    penRender();
-}
 
-function penUp(x: number, y: number) {
-    if (!penDownFlg) {
-        return;
+    cancel() {
+        this.clear();
+        this.penPath = [];
+        this.isDown = false;
     }
-    if (penPath.length == 1) {
-        penPath = [];
-        penDownFlg = false;
-        return;
-    }
-    penPath.push([x, y]);
-    clearPenCanvas();
-    penRender();
 
-    penFinish();
-
-    penCancel();
-}
-
-function penCancel() {
-    clearPenCanvas();
-    penPath = [];
-    penDownFlg = false;
-}
-
-//テキストボックス
-
-function textBoxFinish() {
-    if(editorTextarea.value)
-    {
-        var fontArgs = drawingCanvas2d.font.split(' ');
-        var newSize = '1rem';
-        drawingCanvas2d.font = newSize + ' ' + fontArgs[fontArgs.length - 1];
-        drawingCanvas2d.fillText(editorTextarea.value, editorTextareaX, editorTextareaY);
+    clear() {
+        this.ctx2d.clearRect(0, 0, canvasWidth, canvasHeight);
     }
 }
+let penCanvas: PenCanvas;
+$(function () {
+    penCanvas = new PenCanvas(<HTMLCanvasElement>document.getElementById('pen-canvas'));
+});
 
-function textBoxShow(x: number, y: number) {
-    editorTextareaX = x;
-    editorTextareaY = y;
+//キー入力テキストボックス
+class EditorTextarea {
+    public element: HTMLTextAreaElement;
 
-    editorTextarea.style.left = x + "px";
-    editorTextarea.style.top = y + "px";
-    editorTextarea.style.visibility = "visible";
-    editorTextarea.value = "";
+    private x: number = 0;
+    private y: number = 0;
 
-    editorTextarea.focus();
+    constructor(element: HTMLTextAreaElement) {
+        this.element = element;
+    }
+
+    finish() {
+        if (this.element.value) {
+            var fontArgs = drawingCanvas.ctx2d.font.split(' ');
+            var newSize = '1rem';
+            drawingCanvas.ctx2d.font = newSize + ' ' + fontArgs[fontArgs.length - 1];
+            drawingCanvas.ctx2d.fillText(this.element.value, this.x, this.y);
+        }
+    }
+
+    show(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+
+        this.element.style.left = x + "px";
+        this.element.style.top = y + "px";
+        this.element.style.visibility = "visible";
+        this.element.value = "";
+
+        this.element.focus();
+    }
+
+    hide() {
+        this.finish();
+        this.cancel();
+    }
+
+    cancel() {
+        this.element.style.visibility = "hidden";
+        this.element.value = "";
+    }
 }
-
-function textBoxHide() {
-    textBoxFinish();
-    textBoxCancel();
-}
-
-function textBoxCancel() {
-    editorTextarea.style.visibility = "hidden";
-    editorTextarea.value = "";
-}
+let editorTextarea: EditorTextarea;
+$(function () {
+    editorTextarea = new EditorTextarea(<HTMLTextAreaElement>document.getElementById('editor-textarea'));
+});
 
 $("#editor-textarea")
     .on("keydown", function (e) {
-        if((e.ctrlKey || e.shiftKey) && e.key == "Enter")
-        {
+        if ((e.ctrlKey || e.shiftKey) && e.key == "Enter") {
             e.preventDefault();
-            textBoxHide();
+            editorTextarea.hide();
         }
     });
 
@@ -180,28 +180,115 @@ $("textarea.autosize")
         }
     });
 
+//範囲選択
+class SelectionRect {
+    public element: HTMLDivElement;
+
+    private isSelecting: boolean = false;
+
+    public beginX: number = 0;
+    public beginY: number = 0;
+    public endX: number = 0;
+    public endY: number = 0;
+
+    constructor(element: HTMLDivElement) {
+        this.element = element;
+    }
+
+    finish() {
+
+    }
+
+    cancel() {
+        this.element.style.visibility = "hidden";
+        this.isSelecting = false;
+    }
+
+    show(x: number, y: number) {
+        this.beginX = x;
+        this.beginY = y;
+        
+        this.element.style.left = this.beginX + "px";
+        this.element.style.top = this.beginY + "px";
+        this.element.style.visibility = "visible";
+
+        this.isSelecting = true;
+    }
+
+    move(x: number, y: number) {
+        if(!this.isSelecting)
+        {
+            return;
+        }
+        this.endX = x;
+        this.endY = y;
+        this.element.style.left = Math.min(this.beginX, this.endX) + "px";
+        this.element.style.top = Math.min(this.beginY, this.endY) + "px";
+        this.element.style.width = Math.abs(this.endX - this.beginX) + "px";
+        this.element.style.height = Math.abs(this.endY - this.beginY) + "px";
+    }
+
+    hide(x: number, y: number) {
+        if(!this.isSelecting)
+        {
+            return;
+        }
+        this.finish();
+        this.cancel();
+    }
+}
+let selectionRect: SelectionRect;
+$(function () {
+    selectionRect = new SelectionRect(<HTMLDivElement>document.getElementById('selection-rect'));
+});
+
+//キャンバス関係
+
+function updateCanvasSize() {
+    let editorArea = $("#editor-area");
+    canvasWidth = Math.max(canvasWidth, editorArea.width()!);
+    canvasHeight = Math.max(canvasHeight, editorArea.height()!);
+
+    drawingCanvas.element.width = canvasWidth;
+    drawingCanvas.element.height = canvasHeight;
+    penCanvas.element.width = canvasWidth;
+    penCanvas.element.height = canvasHeight;
+
+    penCanvas.ctx2d.lineWidth = PenCanvas.penSize;
+    penCanvas.ctx2d.strokeStyle = PenCanvas.style;
+    penCanvas.ctx2d.lineCap = 'round';
+}
+
+//マウスイベントを親に伝えない
 $(".stop-propagation")
     .on("click dblclick mousedown", function (e) {
         e.stopPropagation();
     });
 
 //マウス操作
-$(".editor-area")
+$("#editor-area")
     .on("mousedown", function (e) {
-        textBoxHide();
-        penDown(e.offsetX, e.offsetY);
+        editorTextarea.hide();
+        if (e.shiftKey) {
+            selectionRect.show(e.offsetX, e.offsetY);
+        }
+        else {
+            penCanvas.down(e.offsetX, e.offsetY);
+        }
     }).on("mousemove", function (e) {
-        penMove(e.offsetX, e.offsetY);
+        penCanvas?.move(e.offsetX, e.offsetY);
+        selectionRect?.move(e.offsetX, e.offsetY);
     }).on("mouseup", function (e) {
-        penUp(e.offsetX, e.offsetY);
+        penCanvas.up(e.offsetX, e.offsetY);
+        selectionRect.hide(e.offsetX, e.offsetY);
     }).on("dblclick", function (e) {
-        penCancel();
-        textBoxShow(e.offsetX, e.offsetY);
+        penCanvas.cancel();
+        editorTextarea.show(e.offsetX, e.offsetY);
     });
 
 //DOMが読み込まれるときに実行
 $(function () {
-    textBoxHide();
+    editorTextarea.cancel();
     updateCanvasSize();
 });
 
