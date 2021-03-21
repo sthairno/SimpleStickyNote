@@ -51,10 +51,6 @@ class PenCanvas {
         this.ctx2d.stroke();
     }
 
-    finish() {
-        drawingCanvas.ctx2d.drawImage(this.element, 0, 0);
-    }
-
     down(x: number, y: number) {
         this.isDown = true;
         this.penPath = [[x, y]];
@@ -87,7 +83,7 @@ class PenCanvas {
         this.clear();
         this.render();
 
-        this.finish();
+        penCanvasFinish();
 
         this.cancel();
     }
@@ -111,20 +107,11 @@ $(function () {
 class EditorTextarea {
     public element: HTMLTextAreaElement;
 
-    private x: number = 0;
-    private y: number = 0;
+    public x: number = 0;
+    public y: number = 0;
 
     constructor(element: HTMLTextAreaElement) {
         this.element = element;
-    }
-
-    finish() {
-        if (this.element.value) {
-            var fontArgs = drawingCanvas.ctx2d.font.split(' ');
-            var newSize = '1rem';
-            drawingCanvas.ctx2d.font = newSize + ' ' + fontArgs[fontArgs.length - 1];
-            drawingCanvas.ctx2d.fillText(this.element.value, this.x, this.y);
-        }
     }
 
     show(x: number, y: number) {
@@ -140,7 +127,7 @@ class EditorTextarea {
     }
 
     hide() {
-        this.finish();
+        editorTextareaFinish();
         this.cancel();
     }
 
@@ -195,10 +182,6 @@ class SelectionRect {
         this.element = element;
     }
 
-    finish() {
-
-    }
-
     cancel() {
         this.element.style.visibility = "hidden";
         this.isSelecting = false;
@@ -233,7 +216,7 @@ class SelectionRect {
         {
             return;
         }
-        this.finish();
+        selectionRectFinish();
         this.cancel();
     }
 }
@@ -241,6 +224,26 @@ let selectionRect: SelectionRect;
 $(function () {
     selectionRect = new SelectionRect(<HTMLDivElement>document.getElementById('selection-rect'));
 });
+
+//ペン入力終了時
+function penCanvasFinish() {
+    drawingCanvas.ctx2d.drawImage(penCanvas.element, 0, 0);
+}
+
+//テキストボックス入力終了時
+function editorTextareaFinish() {
+    if (editorTextarea.element.value) {
+        var fontArgs = drawingCanvas.ctx2d.font.split(' ');
+        var newSize = '1rem';
+        drawingCanvas.ctx2d.font = newSize + ' ' + fontArgs[fontArgs.length - 1];
+        drawingCanvas.ctx2d.fillText(editorTextarea.element.value, editorTextarea.x, editorTextarea.y);
+    }
+}
+
+//範囲選択終了時
+function selectionRectFinish() {
+
+}
 
 //キャンバス関係
 
