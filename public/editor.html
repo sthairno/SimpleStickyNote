@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="editor.css">
+
+    <title>Editor</title>
+</head>
+
+<body>
+    <template id="stickynote-template">
+      <!-- 付箋のテンプレート -->
+      <div class="stickynote">
+        <!-- 付箋本体 -->
+      </div>
+    </template>
+
+    <div class="editor-area">
+        <!-- 描画中の文字を表示する範囲 -->
+        <canvas id="drawing-canvas"></canvas>
+        <!-- ペン描画中の文字を表示する範囲 -->
+        <canvas id="pen-canvas"></canvas>
+        <!-- キー入力用テキストボックス -->
+        <textarea class="autosize stop-propagation" id="editor-textarea"></textarea>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
