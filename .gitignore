@@ -64,3 +64,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# 自動生成されたjsを除外
+public/*.js

@@ -1,0 +1,28 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+}
+
+.editor-area {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.editor-area>* {
+    position: absolute;
+}
+
+.selection-rect {
+    background-color: rgba(77, 194, 240, 0.363);
+    border: 1px solid rgb(0, 183, 255);
+}
+
+.stickynote-area {
+    display: flex;
+}
