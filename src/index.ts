@@ -3,6 +3,66 @@ import $ from "jquery";
 let canvasWidth = 100;
 let canvasHeight = 100;
 
+class Path extends Array<[x: number, y: number]> {
+    at(idx: number): [x: number, y: number] {
+        return this[idx];
+    }
+
+    atX(idx: number): number {
+        return this.at(idx)[0];
+    }
+    
+    atY(idx: number): number {
+        return this.at(idx)[1];
+    }
+
+    pushXY(x: number, y: number) {
+        this.push([x, y]);
+    }
+    
+    clear() {
+        this.length = 0;
+    }
+}
+
+/**
+ * 点群の中心点,傾きを計算
+ */
+function calcCenterAndSlope(path: Path, begin: number | null = null, end: number | null = null): [x: number, y: number, slope: number]
+{
+    if(!begin)
+    {
+        begin = 0;
+    }
+    if(!end)
+    {
+        end = path.length - 1;
+    }
+    
+    let sum_XY = path.reduce((prev, current) => {
+        return [prev[0] + current[0], prev[1] + current[1]];
+    });
+    let avg_X = sum_XY[0] / path.length, avg_Y = sum_XY[1] / path.length;
+
+    let centered_XY = path.map((value) => {
+        return [value[0] - avg_X, value[1] - avg_Y];
+    });
+
+    let avg_XmulY = centered_XY.map((value) => {
+        return value[0] * value[1];
+    }).reduce((prev, current) => {
+        return prev + current;
+    }) / centered_XY.length;
+
+    let avg_X2 = centered_XY.map((value) => {
+        return value[0]**2;
+    }).reduce((prev, current) => {
+        return prev + current;
+    }) / centered_XY.length;
+
+    return [avg_X, avg_Y, avg_XmulY / avg_X2];
+}
+
 //描画中のキャンバス
 class DrawingCanvas {
     public element: HTMLCanvasElement;
@@ -30,9 +90,9 @@ class PenCanvas {
 
     public element: HTMLCanvasElement;
     public ctx2d: CanvasRenderingContext2D;
+    public penPath: Path = new Path();
 
     private isDown: boolean = false;
-    private penPath: [x: number, y: number][] = [];
 
     constructor(element: HTMLCanvasElement) {
         this.element = element;
@@ -41,7 +101,7 @@ class PenCanvas {
 
     render() {
         this.ctx2d.beginPath();
-        this.ctx2d.moveTo(this.penPath[0][0], this.penPath[0][1]);
+        this.ctx2d.moveTo(this.penPath.atX(0), this.penPath.atY(1));
         this.penPath.forEach((pos, idx) => {
             if (idx == 0) {
                 return;
@@ -53,7 +113,8 @@ class PenCanvas {
 
     down(x: number, y: number) {
         this.isDown = true;
-        this.penPath = [[x, y]];
+        this.penPath.clear();
+        this.penPath.pushXY(x, y);
         this.clear();
     }
 
@@ -75,7 +136,7 @@ class PenCanvas {
             return;
         }
         if (this.penPath.length == 1) {
-            this.penPath = [];
+            this.penPath.clear();
             this.isDown = false;
             return;
         }
@@ -90,7 +151,7 @@ class PenCanvas {
 
     cancel() {
         this.clear();
-        this.penPath = [];
+        this.penPath.clear();
         this.isDown = false;
     }
 
