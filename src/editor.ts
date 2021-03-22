@@ -187,10 +187,26 @@ class SelectionRect {
         this.isSelecting = false;
     }
 
+    getStartX(): number {
+        return Math.min(this.beginX, this.endX);
+    }
+
+    getStartY(): number {
+        return Math.min(this.beginY, this.endY);
+    }
+
+    getWidth(): number {
+        return Math.abs(this.endX - this.beginX);
+    }
+
+    getHeight(): number {
+        return Math.abs(this.endY - this.beginY);
+    }
+
     show(x: number, y: number) {
         this.beginX = x;
         this.beginY = y;
-        
+
         this.element.style.left = this.beginX + "px";
         this.element.style.top = this.beginY + "px";
         this.element.style.visibility = "visible";
@@ -199,30 +215,68 @@ class SelectionRect {
     }
 
     move(x: number, y: number) {
-        if(!this.isSelecting)
-        {
+        if (!this.isSelecting) {
             return;
         }
         this.endX = x;
         this.endY = y;
-        this.element.style.left = Math.min(this.beginX, this.endX) + "px";
-        this.element.style.top = Math.min(this.beginY, this.endY) + "px";
-        this.element.style.width = Math.abs(this.endX - this.beginX) + "px";
-        this.element.style.height = Math.abs(this.endY - this.beginY) + "px";
+        this.element.style.left = this.getStartX() + "px";
+        this.element.style.top = this.getStartY() + "px";
+        this.element.style.width = this.getWidth() + "px";
+        this.element.style.height = this.getHeight() + "px";
     }
 
     hide(x: number, y: number) {
-        if(!this.isSelecting)
-        {
+        if (!this.isSelecting) {
             return;
         }
-        selectionRectFinish();
+        if(this.getWidth() > 0 && this.getHeight() > 0)
+        {
+            selectionRectFinish();
+        }
         this.cancel();
     }
 }
 let selectionRect: SelectionRect;
 $(function () {
     selectionRect = new SelectionRect(<HTMLDivElement>document.getElementById('selection-rect'));
+});
+
+//付箋
+
+class StickyNote {
+    public element: HTMLDivElement;
+    public image: HTMLImageElement;
+
+    setImage(src: string) {
+        this.image.src = src;
+    }
+
+    constructor(element: HTMLDivElement) {
+        this.element = element;
+        this.image = element.querySelector("#stickynote-image")!;
+    }
+}
+
+class StickyNoteGnerator {
+    public template: HTMLTemplateElement;
+
+    generate(image: string) {
+        let element = <HTMLDivElement>this.template.content.cloneNode(true);
+        let note = new StickyNote(element);
+
+        note.setImage(image);
+
+        return note;
+    }
+
+    constructor(template: HTMLTemplateElement) {
+        this.template = template;
+    }
+}
+let stickyNoteGnerator: StickyNoteGnerator;
+$(function () {
+    stickyNoteGnerator = new StickyNoteGnerator(<HTMLTemplateElement>document.getElementById('stickynote-template'));
 });
 
 //ペン入力終了時
@@ -242,7 +296,14 @@ function editorTextareaFinish() {
 
 //範囲選択終了時
 function selectionRectFinish() {
-
+    let tmpCnavas = document.createElement("canvas");
+    tmpCnavas.width = selectionRect.getWidth();
+    tmpCnavas.height = selectionRect.getHeight();
+    tmpCnavas.getContext("2d")?.putImageData(
+        drawingCanvas.ctx2d.getImageData(selectionRect.getStartX(), selectionRect.getStartY(), selectionRect.getWidth(), selectionRect.getHeight()),
+        0, 0);
+    drawingCanvas.ctx2d.clearRect(selectionRect.getStartX(), selectionRect.getStartY(), selectionRect.getWidth(), selectionRect.getHeight());
+    $("#stickynote-area").append(stickyNoteGnerator.generate(tmpCnavas.toDataURL()).element);
 }
 
 //キャンバス関係

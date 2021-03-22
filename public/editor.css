@@ -20,5 +20,9 @@ body {
 
 .selection-rect {
     background-color: rgba(77, 194, 240, 0.363);
-    border-color: rgb(0, 183, 255);
+    border: 1px solid rgb(0, 183, 255);
+}
+
+.stickynote-area {
+    display: flex;
 }
