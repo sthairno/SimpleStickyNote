@@ -97,7 +97,6 @@ class RectDetector {
     private nextAxis: Axis = -1;
 
     private checkHorizontalSlope(deg: number): boolean {
-        console.log(deg, (-RectDetector.thresholdDegree <= deg && deg <= RectDetector.thresholdDegree) ? "OK" : "NG");
         return -RectDetector.thresholdDegree <= deg && deg <= RectDetector.thresholdDegree;
     }
 
