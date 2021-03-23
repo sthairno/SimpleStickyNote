@@ -12,6 +12,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background-image: url('img/paper.png');
 }
 
 .editor-area>* {
@@ -23,6 +24,35 @@ body {
     border: 1px solid rgb(0, 183, 255);
 }
 
+.cork-board {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    background-position: bottom;
+    background-image: url('img/cork.png');
+}
+
+.stickynote {
+    position: relative;
+    height: 100%;
+    background-image: url('img/paper.png');
+}
+
+.stickynote-image {
+    height: 100%;
+}
+
 .stickynote-area {
     display: flex;
+    overflow-x: scroll;
+    height: 300px;
+}
+
+.stickynote-close {
+    position: absolute;
+    top: 0;
+    right: 0;
 }
