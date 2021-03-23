@@ -93,7 +93,7 @@ class RectDetector {
     static readonly thresholdDegree: number = 0.16; //水平,垂直を判定する角度のしきい値
     static readonly rectPadding: number = 5; //検出した四角形のpadding
 
-    public sides: [axis: Axis, cx: number, cy: number, deg: number][] = [];
+    private sides: [axis: Axis, cx: number, cy: number, deg: number][] = [];
     private nextAxis: Axis = -1;
 
     private checkHorizontalSlope(deg: number): boolean {
@@ -451,10 +451,28 @@ $(function () {
 
 let rectDetector = new RectDetector();
 
+//付箋の作成
+function createStickyNote(x: number, y: number, width: number, height: number) {
+    let tmpCnavas = document.createElement("canvas");
+    tmpCnavas.width = width;
+    tmpCnavas.height = height;
+    tmpCnavas.getContext("2d")?.putImageData(
+        drawingCanvas.ctx2d.getImageData(x, y, width, height),
+        0, 0);
+    drawingCanvas.ctx2d.clearRect(x, y, width, height);
+    $("#stickynote-area").append(stickyNoteGnerator.generate(tmpCnavas.toDataURL()).element);
+}
+
 //ペン入力終了時
 function penCanvasFinish() {
-    drawingCanvas.ctx2d.drawImage(penCanvas.element, 0, 0);
     let result = rectDetector.detect(penCanvas.penPath);
+    if (result) {
+        let [startX, startY, endX, endY] = result;
+        createStickyNote(startX, startY, endX - startX, endY - startY);
+    }
+    else {
+        drawingCanvas.ctx2d.drawImage(penCanvas.element, 0, 0);
+    }
 }
 
 //テキストボックス入力終了時
@@ -469,14 +487,7 @@ function editorTextareaFinish() {
 
 //範囲選択終了時
 function selectionRectFinish() {
-    let tmpCnavas = document.createElement("canvas");
-    tmpCnavas.width = selectionRect.getWidth();
-    tmpCnavas.height = selectionRect.getHeight();
-    tmpCnavas.getContext("2d")?.putImageData(
-        drawingCanvas.ctx2d.getImageData(selectionRect.getStartX(), selectionRect.getStartY(), selectionRect.getWidth(), selectionRect.getHeight()),
-        0, 0);
-    drawingCanvas.ctx2d.clearRect(selectionRect.getStartX(), selectionRect.getStartY(), selectionRect.getWidth(), selectionRect.getHeight());
-    $("#stickynote-area").append(stickyNoteGnerator.generate(tmpCnavas.toDataURL()).element);
+    createStickyNote(selectionRect.getStartX(), selectionRect.getStartY(), selectionRect.getWidth(), selectionRect.getHeight());
 }
 
 //キャンバス関係
