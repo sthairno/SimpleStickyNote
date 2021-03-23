@@ -2,42 +2,67 @@
 <html>
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
-    <link rel="stylesheet" type="text/css" href="index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
 
-    <title>Editor</title>
+  <link rel="stylesheet" type="text/css" href="index.css">
+
+  <title>Editor</title>
 </head>
 
 <body>
-    <template id="stickynote-template">
-      <!-- 付箋のテンプレート -->
-      <div class="stickynote">
-        <!-- 付箋本体 -->
-        <img id="stickynote-image">
-      </div>
-    </template>
-
-    <div class="stickynote-area" id="stickynote-area"></div>
-
-    <div class="editor-area" id="editor-area">
-        <!-- 描画中の文字を表示する範囲 -->
-        <canvas id="drawing-canvas"></canvas>
-        <!-- ペン描画中の文字を表示する範囲 -->
-        <canvas id="pen-canvas"></canvas>
-        <!-- キー入力用テキストボックス -->
-        <textarea class="autosize stop-propagation" id="editor-textarea"></textarea>
-        <!-- 範囲選択用div -->
-        <div class="selection-rect" id="selection-rect"></div>
+  <!-- 付箋のテンプレート -->
+  <template id="stickynote-template">
+    <div class="stickynote m-2 p-1 shadow rounded">
+      <img class="stickynote-image" id="stickynote-image">
+      <button type="button" class="close stickynote-close"><span>&times;</span></button>
     </div>
+  </template>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-    <script src="main.js"></script>
+
+  <div class="editor-area" id="editor-area">
+    <!-- 描画中の文字を表示する範囲 -->
+    <canvas id="drawing-canvas"></canvas>
+    <!-- ペン描画中の文字を表示する範囲 -->
+    <canvas id="pen-canvas"></canvas>
+    <!-- キー入力用テキストボックス -->
+    <textarea class="autosize stop-propagation" id="editor-textarea"></textarea>
+    <!-- 範囲選択用div -->
+    <div class="selection-rect" id="selection-rect"></div>
+  </div>
+
+  <!-- 付箋の一覧表示 -->
+  <div class="cork-board shadow-lg">
+    <div class="collapse-area" id="collapse-area">
+      <div class="stickynote-area" id="stickynote-area"></div>
+    </div>
+    <div class="d-grid gap-2">
+      <button class="bg-transparent border-0" data-bs-toggle="collapse" data-bs-target="#collapse-area">
+        <i class="bi bi-caret-down-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="btn-group position-absolute bottom-0 start-0 m-1" role="group">
+    <button type="button" class="btn btn-outline-secondary"><i class="bi bi-trash"></i></button>
+  </div>
+
+  <div class="btn-group position-absolute bottom-0 end-0 m-1" role="group">
+    <button type="button" class="btn btn-outline-secondary"><i class="bi bi-arrows-fullscreen"></i></button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+    crossorigin="anonymous"></script>
+  <script src="main.js"></script>
+
 </body>
 
 </html>
