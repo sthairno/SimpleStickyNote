@@ -195,7 +195,7 @@ $(function () {
 class PenCanvas {
     public static readonly penSize: number = 5;
     static readonly style: string = "rgba(10, 10, 10, 1)";
-    static readonly minMove: number = 5; //パスを追加するときの最低移動量
+    static readonly minMove: number = 3; //パスを追加するときの最低移動量
 
     public element: HTMLCanvasElement;
     public ctx2d: CanvasRenderingContext2D;
@@ -512,22 +512,40 @@ $(".stop-propagation")
         e.stopPropagation();
     });
 
-//マウス操作
+//マウス,タッチ操作
+
+let isTouch: boolean = false;
+
 $("#editor-area")
-    .on("mousedown", function (e) {
+    .on("touchstart", function (e) {
+        isTouch = true;
         editorTextarea.hide();
-        if (e.shiftKey) {
-            selectionRect.show(e.offsetX, e.offsetY);
-        }
-        else {
-            penCanvas.down(e.offsetX, e.offsetY);
+        penCanvas.down(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
+    }).on("touchmove", function (e) {
+        penCanvas?.move(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
+    }).on("touchend", function (e) {
+        isTouch = false;
+        penCanvas.up(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
+    }).on("mousedown", function (e) {
+        if (isTouch) {
+            editorTextarea.hide();
+            if (e.shiftKey) {
+                selectionRect.show(e.offsetX, e.offsetY);
+            }
+            else {
+                penCanvas.down(e.offsetX, e.offsetY);
+            }
         }
     }).on("mousemove", function (e) {
-        penCanvas?.move(e.offsetX, e.offsetY);
-        selectionRect?.move(e.offsetX, e.offsetY);
+        if (isTouch) {
+            penCanvas?.move(e.offsetX, e.offsetY);
+            selectionRect?.move(e.offsetX, e.offsetY);
+        }
     }).on("mouseup", function (e) {
-        penCanvas.up(e.offsetX, e.offsetY);
-        selectionRect.hide(e.offsetX, e.offsetY);
+        if (isTouch) {
+            penCanvas.up(e.offsetX, e.offsetY);
+            selectionRect.hide(e.offsetX, e.offsetY);
+        }
     }).on("dblclick", function (e) {
         penCanvas.cancel();
         editorTextarea.show(e.offsetX, e.offsetY);
