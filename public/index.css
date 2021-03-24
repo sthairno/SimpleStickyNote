@@ -12,6 +12,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    touch-action: none;
     background-image: url('img/paper.png');
 }
 
@@ -28,9 +29,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-
     width: 100%;
-
     background-position: bottom;
     background-image: url('img/cork.png');
 }
