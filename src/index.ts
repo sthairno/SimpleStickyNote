@@ -1,6 +1,6 @@
 import $ from "jquery";
 import { stickyNoteGenerator } from "./stickynote";
-import { updateAllStickyNotes, uploadStickyNote, deleteStickyNote } from "./firebase";
+import { uploadStickyNote, deleteStickyNote } from "./firebase";
 import { DrawingCanvas } from "./DrawingCanvas";
 import { PenCanvas } from "./PenCanvas";
 import { EditorTextarea } from "./EditorTextarea";
@@ -189,7 +189,6 @@ $(function () {
 $(function () {
     editorTextarea.cancel();
     updateCanvasSize();
-    updateAllStickyNotes();
 });
 
 //ウィンドウの大きさが変わったときに実行
