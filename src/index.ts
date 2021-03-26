@@ -167,6 +167,22 @@ $(function () {
             penCanvas.cancel();
             editorTextarea.show(e.offsetX, e.offsetY);
         });
+    
+    $("#fullscreen-switch-btn")
+        .on("click", function(e) {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+              if (document.exitFullscreen) {
+                document.exitFullscreen();
+              }
+            }
+        });
+    
+    $("#canvas-clear-btn")
+        .on("click", function(e) {
+            drawingCanvas.clear();
+        });
 });
 
 //DOMが読み込まれるときに実行
