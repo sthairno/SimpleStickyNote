@@ -67,3 +67,6 @@ node_modules/
 
 # 自動生成されたjsを除外
 public/*.js
+
+# 再配布不能なファイルを除外
+public/img/*
