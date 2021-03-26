@@ -73,7 +73,9 @@ function createStickyNote(x: number, y: number, width: number, height: number) {
         0, 0);
     drawingCanvas.ctx2d.clearRect(x, y, width, height);
     let stickynote = stickyNoteGenerator.generate(tmpCnavas.toDataURL());
-    $("#stickynote-area").append(stickynote.element);
+    stickynote.onClose = () => {
+        deleteStickyNote(stickynote);
+    };
 
     uploadStickyNote(stickynote);
 }

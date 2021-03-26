@@ -2,7 +2,13 @@ import $ from "jquery";
 import firebase from "firebase/app";
 import "firebase/firestore"
 
-import { StickyNote, stickyNoteGenerator, stickyNotes } from "./stickynote";
+import { StickyNote, stickyNoteGenerator } from "./stickynote";
+
+export let stickyNotes: StickyNote[] = [];
+let stickynoteArea: HTMLElement;
+$(function () {
+    stickynoteArea = <HTMLElement>document.getElementById('stickynote-area');
+});
 
 var firebaseConfig = {
     apiKey: "AIzaSyCOnwajWf_vAFkUS4z6oXJdAmhcQEysn3I",
@@ -28,7 +34,7 @@ interface StickyNoteData {
 
 function clearAllStickyNotes()
 {
-    $("#stickynote-area").text('');
+    stickynoteArea.textContent = "";
     stickyNotes.length = 0;
 }
 
@@ -39,9 +45,18 @@ export async function updateAllStickyNotes()
     result.forEach((doc) => {
         let data = <StickyNoteData>doc.data();
         let stickynote = stickyNoteGenerator.generate(data.image);
+        stickynote.id = doc.id;
+        stickynote.onClose = () => {
+            deleteStickyNote(stickynote);
+        };
 
-        $("#stickynote-area").append(stickynote.element);
+        stickynoteArea.append(stickynote.element);
+        //stickynote.elementを再定義
+        let elements = stickynoteArea.querySelectorAll(".stickynote");
+        stickynote.element = <HTMLDivElement>(elements[elements.length - 1]);
+
         stickyNotes.push(stickynote);
+        console.log(stickynote);
     });
 }
 
@@ -52,13 +67,29 @@ export async function uploadStickyNote(stickynote: StickyNote)
         createdDate: new Date()
     };
     let result = await firestore.collection("stickynotes").add(data);
+    stickynote.id = result.id;
     console.log("付箋をアップロード: ", result.id);
+
+    stickynoteArea.append(stickynote.element);
+    //stickynote.elementを再定義
+    let elements = stickynoteArea.querySelectorAll(".stickynote");
+    stickynote.element = <HTMLDivElement>(elements[elements.length - 1]);
+    
+    stickyNotes.push(stickynote);
+    console.log(stickynote);
 }
 
 export async function deleteStickyNote(stickynote: StickyNote) {
     if(stickynote.id)
     {
         await firestore.collection("stickynotes").doc(stickynote.id).delete();
+        stickyNotes.forEach((item, idx) => {
+            if(item == stickynote) {
+                stickyNotes.splice(idx, 1);
+            }
+        });
         console.log("付箋を削除: ", stickynote.id);
+
+        stickynoteArea.removeChild(stickynote.element);
     }
 }

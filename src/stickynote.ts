@@ -3,7 +3,10 @@ import $ from "jquery";
 export class StickyNote {
     public element: HTMLDivElement;
     public image: HTMLImageElement;
+    public closeBtn: HTMLButtonElement;
     public id: string | null = null;
+
+    public onClose: Function | null = null;
 
     setImage(src: string) {
         this.image.src = src;
@@ -16,6 +19,14 @@ export class StickyNote {
     constructor(element: HTMLDivElement) {
         this.element = element;
         this.image = element.querySelector("#stickynote-image")!;
+        this.closeBtn = element.querySelector("#stickynote-close")!;
+
+        this.closeBtn.onclick = (e) => {
+            if(this.onClose)
+            {
+                this.onClose();
+            }
+        };
     }
 }
 
@@ -35,8 +46,6 @@ export class StickyNoteGenerator {
         this.template = template;
     }
 }
-
-export let stickyNotes: StickyNote[] = [];
 
 export let stickyNoteGenerator: StickyNoteGenerator;
 $(function () {
