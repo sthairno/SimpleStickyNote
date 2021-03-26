@@ -142,7 +142,7 @@ $(function () {
             isTouch = false;
             penCanvas.up(e.changedTouches[0].pageX, e.changedTouches[0].pageY);
         }).on("mousedown", function (e) {
-            if (isTouch) {
+            if (!isTouch) {
                 editorTextarea.hide();
                 if (e.shiftKey) {
                     selectionRect.show(e.offsetX, e.offsetY);
@@ -152,12 +152,12 @@ $(function () {
                 }
             }
         }).on("mousemove", function (e) {
-            if (isTouch) {
+            if (!isTouch) {
                 penCanvas?.move(e.offsetX, e.offsetY);
                 selectionRect?.move(e.offsetX, e.offsetY);
             }
         }).on("mouseup", function (e) {
-            if (isTouch) {
+            if (!isTouch) {
                 penCanvas.up(e.offsetX, e.offsetY);
                 selectionRect.hide(e.offsetX, e.offsetY);
             }
