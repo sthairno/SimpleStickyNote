@@ -15,8 +15,8 @@ https://docs.google.com/presentation/d/e/2PACX-1vRPlEtYFXyr1sTfyShfoj1ermbtWjzvr
 
 ### 手書き/キーボード入力メモ
 
-![stickynote-memo](img\stickynote-memo.gif)
+![stickynote-memo](img/stickynote-memo.gif)
 
 ### 付箋切り取り
 
-![stickynote-clip](img\stickynote-clip.gif)
+![stickynote-clip](img/stickynote-clip.gif)
